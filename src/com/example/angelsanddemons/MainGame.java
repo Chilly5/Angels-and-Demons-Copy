@@ -50,6 +50,7 @@ TextView transitiontext;
 RelativeLayout relativeLayout;
 Random rng = new Random();
 
+ImageView timebackground;
 ImageView card;
 ImageView allegiance;
 ImageView player1, player2, player3, player4, player5, player6, player7, player8, player9, player10;
@@ -61,6 +62,11 @@ TextView instructions;
 
 Integer[] cards={R.drawable.actioncard_bless,R.drawable.actioncard_curse,R.drawable.actioncard_disgrace,R.drawable.actioncard_guard,R.drawable.actioncard_steal};
 Integer[] icons= {R.drawable.icon_book2,R.drawable.icon_dog2,R.drawable.icon_fish2,R.drawable.icon_flower2,R.drawable.icon_hammer2,R.drawable.icon_lute2,R.drawable.icon_staff2,R.drawable.icon_shield2,R.drawable.icon_tree2,R.drawable.icon_wheat2,};
+
+RelativeLayout.LayoutParams icon_dimensions;
+float x;
+float y;
+ImageView highlight_icon;
 
 	public void showScores(){
 		for (int i = 0; i < numplayers; i++) {
@@ -101,6 +107,15 @@ Integer[] icons= {R.drawable.icon_book2,R.drawable.icon_dog2,R.drawable.icon_fis
 
 	@Override
 	public boolean onDrag(View player_icon, DragEvent e) {
+		highlight_icon.setX(player_icon.getX());
+		highlight_icon.setY(player_icon.getY());
+		
+		if (e.getAction()==DragEvent.ACTION_DRAG_ENTERED) {
+			highlight_icon.setVisibility(View.VISIBLE);
+		}
+		if (e.getAction()==DragEvent.ACTION_DRAG_EXITED) {
+			highlight_icon.setVisibility(View.INVISIBLE);
+        }
 		//When Dropped
 		if (e.getAction()==DragEvent.ACTION_DROP) {
 			int cardnum = (Integer)card.getTag();
@@ -185,6 +200,7 @@ Integer[] icons= {R.drawable.icon_book2,R.drawable.icon_dog2,R.drawable.icon_fis
 						break;
 				}
 				nextButton.setVisibility(View.VISIBLE);
+				highlight_icon.setVisibility(View.INVISIBLE);
 				updateScoreDisplay();
 			}
 			else{
@@ -209,7 +225,12 @@ Integer[] icons= {R.drawable.icon_book2,R.drawable.icon_dog2,R.drawable.icon_fis
 		//RelativeLayOut Setup
         relativeLayout = new RelativeLayout(this);
         relativeLayout.setOnDragListener(this);
-        relativeLayout.setBackgroundResource(R.drawable.nighttimebackground);
+        timebackground = new ImageView(this);
+        timebackground.setImageResource(R.drawable.nighttimebackground);
+		timebackground.setScaleType(ScaleType.CENTER_CROP);
+		relativeLayout.addView(timebackground);
+
+        //relativeLayout.setBackgroundResource(R.drawable.nighttimebackground);
 		
         //Transition
         
@@ -269,7 +290,7 @@ Integer[] icons= {R.drawable.icon_book2,R.drawable.icon_dog2,R.drawable.icon_fis
 		    cloud4.startAnimation(makeDrift());
 		    cloud5.startAnimation(makeDrift());
 		
-			//Pillars
+			/*Pillars
 			ImageView leftpillar = new ImageView(this);
 			ImageView rightpillar = new ImageView(this);
 			leftpillar.setImageResource(R.drawable.background_column_right);
@@ -286,9 +307,14 @@ Integer[] icons= {R.drawable.icon_book2,R.drawable.icon_dog2,R.drawable.icon_fis
 	        rightpillar.setY((float)0);
 	        relativeLayout.addView(leftpillar);
 	        relativeLayout.addView(rightpillar);
-	            
+	        */
+	        ImageView archway = new ImageView(this);
+	        archway.setImageResource(R.drawable.archway);
+			archway.setScaleType(ScaleType.CENTER_CROP);
+			relativeLayout.addView(archway);
+		    
         //Size of Icon
-        RelativeLayout.LayoutParams icon_dimensions = new RelativeLayout.LayoutParams(width/5, height/6);
+        icon_dimensions = new RelativeLayout.LayoutParams(width/5, height/6);
         
         //Make card
         card = new ImageView(this);
@@ -312,7 +338,7 @@ Integer[] icons= {R.drawable.icon_book2,R.drawable.icon_dog2,R.drawable.icon_fis
 		nextButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v){
 				if (turnCounter < numplayers){
-					relativeLayout.setBackgroundResource(R.drawable.nighttimebackground);
+					timebackground.setImageResource(R.drawable.nighttimebackground);
 					drawActionCard("Night");
 					displayInstructions("Night");
 					currentplayernum++;
@@ -323,7 +349,7 @@ Integer[] icons= {R.drawable.icon_book2,R.drawable.icon_dog2,R.drawable.icon_fis
 				else if ((turnCounter - numplayers)% 2 == 0){
 					drawActionCard("Day");
 					unShowScores();
-					relativeLayout.setBackgroundResource(R.drawable.daytimebackground);
+					timebackground.setImageResource(R.drawable.daytimebackground);
 					currentplayernum++;
 					if (currentplayernum == numplayers){
 						currentplayernum = 0;
@@ -379,8 +405,8 @@ Integer[] icons= {R.drawable.icon_book2,R.drawable.icon_dog2,R.drawable.icon_fis
 	        //Math to find and set Image Location
 			float x_adjust = -radius * (float) Math.cos((Math.PI * 2 * i/numplayers) + (Math.PI/2));
 			float y_adjust = radius * (float) Math.sin((Math.PI * 2 * i/numplayers) + (Math.PI/2));
-			float x = width/2 - width/10 + x_adjust;
-			float y = height/2 - height/12 - mActionBarSize - y_adjust;
+			x = width/2 - width/10 + x_adjust;
+			y = height/2 - height/12 - mActionBarSize - y_adjust;
 			player.setX(x);
 			player.setY(y);
 			
@@ -421,6 +447,12 @@ Integer[] icons= {R.drawable.icon_book2,R.drawable.icon_dog2,R.drawable.icon_fis
 			relativeLayout.addView(player);
 			relativeLayout.addView(tplayer);
         }
+        
+        highlight_icon = new ImageView(this);
+	    highlight_icon.setImageResource(R.drawable.icon_glow);
+	    highlight_icon.setLayoutParams(icon_dimensions);
+        relativeLayout.addView(highlight_icon);
+		highlight_icon.setVisibility(View.INVISIBLE);
         
         //Fill scoreboard
         int j = 0;
